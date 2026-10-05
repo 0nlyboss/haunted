@@ -1,1 +1,1 @@
-{"name":"catmemer-core","version":"1.0.0","private":true,"description":"Framework-agnostic economy core for a Discord community bot","scripts":{"demo":"node src/demo.js"},"engines":{"node":">=18"}}
+{"name":"catmemer-core","version":"1.1.0","private":true,"description":"Framework-agnostic economy core for a Discord community bot","scripts":{"demo":"node src/demo.js","test":"node test/economy.test.js"},"engines":{"node":">=18"}}
