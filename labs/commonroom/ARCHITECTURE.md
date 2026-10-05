@@ -1,20 +1,26 @@
 # CommonRoom architecture
 
-CommonRoom is a small Luau systems study rather than a finished game. The goal is to keep authority over progression and inventory on the server-facing service layer.
+CommonRoom is a Luau multiplayer-systems study rather than a finished game. The goal is to keep authority over progression, inventory, economy and interactions on the server-facing service layer.
 
 ## Services
 
 - `ProfileService` owns level and XP state and returns copies for snapshots.
 - `InventoryService` owns item quantities and validates mutations.
+- `EconomyService` owns balances, debits, credits and transfers.
 - `MatchService` owns queue membership and creates match records only after enough players are queued.
-- `RateLimiter` provides a lightweight per-user/per-action request budget for server entry points.
+- `RateLimiter` provides a lightweight per-user/per-action request budget.
+- `InteractionService` is a validated entry boundary that accepts client intent and delegates mutations to authoritative services.
 
-## Intended request flow
+## Request flow
 
-Client intent -> validated server handler -> rate limit -> service mutation -> snapshot/event back to client.
+Client intent -> request shape validation -> rate limit -> authoritative service mutation -> snapshot/event back to client.
 
-The client should never submit a final balance, level, inventory quantity, or other authoritative result. It submits intent; server code decides whether the transition is valid.
+The client never submits a final balance, level, inventory quantity or other authoritative result. For example, a purchase asks to buy an item; server code validates the request, debits currency and updates inventory. Failed inventory mutation rolls the debit back.
 
-## Next integration boundary
+## Trust boundary
 
-Persistence is intentionally not faked in this repository. A production Roblox implementation would put a DataStore/ProfileStore adapter behind these services and define RemoteEvent/RemoteFunction contracts around validated handlers.
+This LAB intentionally demonstrates structure rather than pretending to solve Roblox security with obscurity. Client-visible names and code are not treated as secrets. Important state and validation live on the server side.
+
+## Persistence boundary
+
+Persistence is intentionally not faked here. A production implementation would place a DataStore/ProfileStore adapter behind the services, use session locking/retry handling, and expose narrow RemoteEvent/RemoteFunction contracts around `InteractionService`.
